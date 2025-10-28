@@ -1,0 +1,8 @@
+# Set upload limits for 2GB files
+php_value upload_max_filesize 1200M
+php_value post_max_size 1200M
+php_value memory_limit 2100M
+
+# Set time limits (in seconds) - 2 HOURS
+php_value max_execution_time 7200
+php_value max_input_time 7200

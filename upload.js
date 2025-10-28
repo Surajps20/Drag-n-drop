@@ -5,9 +5,11 @@ const selectFileBtn = document.getElementById('selectFileBtn');
 const fileList = document.getElementById('fileList');
 
 // URL for your server-side upload script
-const uploadURL = 'upload.php'; 
+const uploadURL = 'upload.php';
+// Define the size of each chunk (e.g., 5MB)
+const CHUNK_SIZE = 5 * 1024 * 1024;
 
-// --- Event Listeners ---
+// --- Event Listeners (Same as before) ---
 
 // 1. Click "Select File" button
 selectFileBtn.addEventListener('click', () => {
@@ -17,11 +19,7 @@ selectFileBtn.addEventListener('click', () => {
 // 2. Listen for file selection
 fileInput.addEventListener('change', () => {
     handleFiles(fileInput.files);
-    
-    // *** THIS IS THE FIX ***
-    // Reset the input value. This allows the 'change' event to
-    // fire again, even if the same file is selected.
-    fileInput.value = null;
+    fileInput.value = null; // Reset input
 });
 
 // 3. Drag and Drop: Prevent default browser behavior
@@ -60,15 +58,25 @@ function handleDrop(e) {
 
 // --- Main Functions ---
 
+/**
+ * Iterates over the selected files and starts the upload process for each.
+ */
 function handleFiles(files) {
-    // Clear the list if you want to upload one at a time
-    // fileList.innerHTML = ""; // Uncomment this if you only want to show the current upload
-    
-    [...files].forEach(uploadFile);
+    [...files].forEach(file => {
+        // Generate a unique ID for this specific file upload
+        // This allows the server to correctly reassemble the file
+        const uniqueId = `${file.name}-${file.size}-${file.lastModified}`;
+        
+        // Start the upload process for this file
+        uploadFile(file, uniqueId);
+    });
 }
 
-function uploadFile(file) {
-    // --- Create visual elements ---
+/**
+ * Creates the UI elements for the file and starts the chunking process.
+ */
+function uploadFile(file, uniqueId) {
+    // --- Create visual elements (same as before) ---
     const fileItem = document.createElement('div');
     fileItem.className = 'file-item';
 
@@ -84,7 +92,7 @@ function uploadFile(file) {
 
     const fileStatus = document.createElement('span');
     fileStatus.className = 'file-status';
-    fileStatus.textContent = 'Uploading...';
+    fileStatus.textContent = 'Preparing...';
     fileStatus.style.color = '#666';
 
     fileProgress.appendChild(progressBar);
@@ -93,38 +101,85 @@ function uploadFile(file) {
     fileItem.appendChild(fileStatus);
     fileList.appendChild(fileItem);
 
-    // --- AJAX Upload Logic ---
+    // --- NEW Chunking Logic ---
+    const totalChunks = Math.ceil(file.size / CHUNK_SIZE);
+    let currentChunk = 0;
+
+    // Start uploading the first chunk
+    uploadChunk(file, uniqueId, currentChunk, totalChunks, progressBar, fileStatus);
+}
+
+/**
+ * This function recursively uploads one chunk at a time.
+ */
+function uploadChunk(file, uniqueId, currentChunk, totalChunks, progressBar, fileStatus) {
+    const start = currentChunk * CHUNK_SIZE;
+    const end = Math.min(start + CHUNK_SIZE, file.size);
+    const chunk = file.slice(start, end);
+
     const formData = new FormData();
-    formData.append('file', file); 
+    formData.append('fileChunk', chunk);
+    formData.append('fileName', file.name);
+    formData.append('currentChunk', currentChunk);
+    formData.append('totalChunks', totalChunks);
+    formData.append('uniqueId', uniqueId);
 
     const xhr = new XMLHttpRequest();
     xhr.open('POST', uploadURL, true);
 
     xhr.upload.addEventListener('progress', (e) => {
         if (e.lengthComputable) {
-            const percentComplete = (e.loaded / e.total) * 100;
+            // Calculate total progress, not just chunk progress
+            const bytesUploaded = (currentChunk * CHUNK_SIZE) + e.loaded;
+            const percentComplete = Math.round((bytesUploaded / file.size) * 100);
             progressBar.style.width = percentComplete + '%';
         }
     });
 
     xhr.onload = () => {
-        progressBar.style.width = '100%';
         if (xhr.status === 200) {
-            fileStatus.textContent = 'Uploaded';
-            fileStatus.style.color = '#28a745';
+            try {
+                const response = JSON.parse(xhr.responseText);
+
+                if (response.success) {
+                    if (response.status === 'chunk_uploaded') {
+                        // Upload the next chunk
+                        currentChunk++;
+                        fileStatus.textContent = `Uploading chunk ${currentChunk + 1}/${totalChunks}`;
+                        uploadChunk(file, uniqueId, currentChunk, totalChunks, progressBar, fileStatus);
+                    
+                    } else if (response.status === 'complete') {
+                        // File upload is finished
+                        progressBar.style.width = '100%';
+                        fileStatus.textContent = 'Uploaded';
+                        fileStatus.style.color = '#28a745';
+                    }
+                } else {
+                    // Server returned a JSON error
+                    handleUploadError(response.error, fileStatus, progressBar);
+                }
+            } catch (e) {
+                // JSON parsing failed
+                handleUploadError('Invalid server response.', fileStatus, progressBar);
+            }
         } else {
-            // Display a more specific error
-            fileStatus.textContent = 'Upload Failed';
-            fileStatus.style.color = '#dc3545';
-            progressBar.style.backgroundColor = '#dc3545';
+            // HTTP error
+            handleUploadError(`Upload Failed (Status: ${xhr.status})`, fileStatus, progressBar);
         }
     };
 
     xhr.onerror = () => {
-        fileStatus.textContent = 'Network Error';
-        fileStatus.style.color = '#dc3545';
-        progressBar.style.backgroundColor = '#dc3545';
+        handleUploadError('Network Error', fileStatus, progressBar);
     };
 
     xhr.send(formData);
+}
+
+/**
+ * A helper function to show an error state on the UI.
+ */
+function handleUploadError(message, fileStatus, progressBar) {
+    fileStatus.textContent = message;
+    fileStatus.style.color = '#dc3545';
+    progressBar.style.backgroundColor = '#dc3545';
 }
