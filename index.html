@@ -5,20 +5,16 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>File Upload Page</title>
     <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.13.6/css/jquery.dataTables.min.css">
 </head>
 <body>
 
     <div class="upload-container">
         <h2>Select the file you want to upload</h2>
-<!--         
-        <div class="info-message">
-            Maximum file size allowed for upload: 500 MB
-        </div> -->
+        <p style="text-align: center; margin-top: 20px;">
+        <!-- <a href="file_list.php">View Uploaded Files</a> -->
+    </p>
 
-        <!-- <div class="overwrite-option">
-            <input type="checkbox" id="overwrite" name="overwrite">
-            <label for="overwrite">Overwrite existing files</label>
-        </div> -->
 
         <div class="drop-zone" id="dropZone">
             <p>Drop files here to start uploading</p>
@@ -31,6 +27,12 @@
         <div class="file-list" id="fileList"></div>
     </div>
 
+    
+
+    <script src="https://code.jquery.com/jquery-3.7.0.js"></script>
+    <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
+    <script src="files.js"></script> </body>
+</html>
     <script src="upload.js"></script>
 </body>
 </html>
