@@ -4,7 +4,7 @@ session_start();
 
 // --- Define your dummy credentials ---
 $correct_username = "admin";
-$correct_password = "password123"; // Super insecure! For testing only.
+$correct_password = "admin123"; // Super insecure! For testing only.
 
 // Variable to hold an error message
 $error_message = "";
