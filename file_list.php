@@ -1,3 +1,16 @@
+<?php
+// Start the session to check if it exists
+session_start();
+
+// Check if the user_id session variable is NOT set
+if (!isset($_SESSION['user_id'])) {
+    
+    // If not set, they are not logged in. Redirect to login page.
+    header('Location: login.php');
+    exit();
+}
+?>
+
 <!DOCTYPE html>
 <html lang="en">
 
@@ -246,7 +259,7 @@
         </table>
 
         <p style="text-align: center; margin-top: 20px;">
-            <a href="index.html">Back to Uploader</a>
+            <a href="index.php">Back to Uploader</a>
         </p>
     </div>
     <?php

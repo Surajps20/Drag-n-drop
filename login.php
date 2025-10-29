@@ -4,7 +4,7 @@ session_start();
 
 // --- Define your dummy credentials ---
 $correct_username = "admin";
-$correct_password = "password123"; // Super insecure! For testing only.
+$correct_password = "admin123"; // Super insecure! For testing only.
 
 // Variable to hold an error message
 $error_message = "";
@@ -19,12 +19,12 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     // Check if the username and password are correct
     if ($username == $correct_username && $password == $correct_password) {
         
-        // Credentials are correct!
-        // You would normally set a session variable here, like:
-        // $_SESSION['loggedin'] = true;
-        // $_SESSION['username'] = $username;
+        // --- CREDENTIALS ARE CORRECT ---
+        
+        // 1. Set the session variable to prove the user is logged in
+        $_SESSION['user_id'] = $username; 
 
-        // Redirect to file_list.php
+        // 2. Redirect to file_list.php
         header("Location: file_list.php");
         exit; // Important to stop the script after a redirect
 
