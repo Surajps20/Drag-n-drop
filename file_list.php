@@ -227,6 +227,188 @@ if (!isset($_SESSION['user_id'])) {
             color: #d93025; /* Red for urgency */
             margin-left: 0.5rem;
         }
+
+        /* --- Action Buttons in Table --- */
+/* Base style for all buttons */
+.share-btn, .download-btn, .delete-btn {
+    color: white;
+    border: none;
+    padding: 0.6rem 1rem;
+    border-radius: 6px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background-color 0.2s;
+    text-decoration: none; /* For the <a> tag */
+    display: inline-block; /* For the <a> tag */
+    font-size: 0.85rem;
+    text-align: center;
+}
+
+/* Style for the 'Copy Link' button */
+.share-btn {
+    background-color: #007bff; /* Blue */
+}
+.share-btn:hover {
+    background-color: #0056b3;
+}
+
+/* Style for the new 'Download' button */
+.download-btn {
+    background-color: #28a745; /* Green */
+}
+.download-btn:hover {
+    background-color: #218838;
+}
+
+/* Style for the new 'Delete' button */
+.delete-btn {
+    background-color: #dc3545; /* Red */
+}
+.delete-btn:hover {
+    background-color: #c82333;
+}
+
+/* --- Responsive Styles for Mobile Phones --- */
+@media (max-width: 768px) {
+
+    /* --- 1. General Layout --- */
+    body {
+        padding: 0.5rem; /* Reduce body padding */
+    }
+    .page-container {
+        padding: 0;
+    }
+    .file-container {
+        padding: 1rem 0.5rem; /* Reduce card padding */
+    }
+
+    /* --- 2. Header --- */
+    .header {
+        flex-direction: column; /* Stack logo and logout button */
+        align-items: flex-start;
+        gap: 1rem;
+        margin-bottom: 1rem;
+    }
+
+    /* --- 3. DataTables Controls --- */
+    /* Make 'Show Entries' and 'Search' full-width */
+    .dataTables_length,
+    .dataTables_filter {
+        float: none; /* Disable default DataTables float */
+        width: 100%;
+        text-align: left;
+        margin-bottom: 0.5rem;
+    }
+    .dataTables_filter input[type="search"] {
+        width: 70%;
+        display: inline-block;
+    }
+
+    /* --- 4. Responsive "Stacked Card" Table --- */
+    table#filesTable thead {
+        /* Hide the original table headers */
+        display: none;
+    }
+
+    table#filesTable tbody,
+    table#filesTable tr,
+    table#filesTable td {
+        /* Make everything a full-width block */
+        display: block;
+        width: 100%;
+        box-sizing: border-box;
+    }
+
+    table#filesTable tr {
+        /* This is our new "card" */
+        border: 1px solid #ddd;
+        border-radius: 8px;
+        margin-bottom: 1.5rem;
+        padding: 0.5rem;
+    }
+
+    table#filesTable td {
+        border: none;
+        border-bottom: 1px solid #f0f0f0;
+        padding: 0.75rem;
+        padding-left: 45%; /* Make room for the label */
+        position: relative;
+        text-align: right; /* Align cell content to the right */
+        height: auto;
+    }
+
+    table#filesTable td:last-child {
+        border-bottom: none; /* No border on the last cell */
+    }
+
+    /* Create the new "labels" */
+    table#filesTable td::before {
+        content: attr(data-label); /* Gets label text from JS */
+        position: absolute;
+        left: 0.75rem;
+        width: 40%;
+        text-align: left;
+        font-weight: 600;
+        color: #333;
+    }
+
+    /* --- 5. Custom Labels & Alignment --- */
+
+    /* File Name: Make this the "title" of the card */
+    table#filesTable td:nth-of-type(1) {
+        text-align: left;
+        font-size: 1.1rem;
+        font-weight: 600;
+        padding-left: 0.75rem;
+        word-break: break-all; /* Break long file names */
+    }
+    table#filesTable td:nth-of-type(1)::before {
+        display: none; /* No label for File Name */
+    }
+
+    /* Size */
+    table#filesTable td:nth-of-type(2)::before {
+        content: "Size:";
+    }
+
+    /* Date Uploaded */
+    table#filesTable td:nth-of-type(3)::before {
+        content: "Date Uploaded:";
+    }
+
+    /* Button rows: Center the buttons */
+    table#filesTable td:nth-of-type(4),
+    table#filesTable td:nth-of-type(5),
+    table#filesTable td:nth-of-type(6) {
+        text-align: center;
+        padding: 0.75rem;
+    }
+    table#filesTable td:nth-of-type(4)::before,
+    table#filesTable td:nth-of-type(5)::before,
+    table#filesTable td:nth-of-type(6)::before {
+        display: none; /* No labels for buttons */
+    }
+    
+    /* Make buttons bigger and easier to tap */
+    .share-btn, .download-btn, .delete-btn {
+        width: 80%;
+        padding: 0.75rem 1rem;
+    }
+
+    /* --- 6. Table Footer --- */
+    /* Center the 'Showing X' and 'Pagination' */
+    .dataTables_info,
+    .dataTables_paginate {
+        float: none;
+        width: 100%;
+        text-align: center;
+    }
+    .dataTables_info {
+        margin-bottom: 1rem;
+    }
+}
+/* This replaces your old .copy-button style */
+/* You can remove .copy-button and .copy-button:hover */
 </style>
 </head>
 
@@ -252,6 +434,8 @@ if (!isset($_SESSION['user_id'])) {
                     <th>Size</th>
                     <th>Date Uploaded</th>
                     <th>Share Link</th>
+                    <th>Download</th> 
+                    <th>Delete</th>  
                 </tr>
             </thead>
             <tbody>
