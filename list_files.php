@@ -1,5 +1,16 @@
 <?php
+// Start the session to check if it exists
+session_start();
 
+// Check if the user_id session variable is NOT set
+if (!isset($_SESSION['user_id'])) {
+    
+    // If not, send an unauthorized error (don't redirect a script)
+    http_response_code(401); // 401 Unauthorized
+    header('Content-Type: application/json');
+    echo json_encode(['data' => [], 'error' => 'Not logged in.']);
+    exit();
+}
 // --- Helper function to format bytes nicely ---
 function formatBytes($bytes, $precision = 2) {
     $units = ['B', 'KB', 'MB', 'GB', 'TB'];
