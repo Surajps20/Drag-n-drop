@@ -64,7 +64,6 @@ function handleDrop(e) {
 function handleFiles(files) {
     [...files].forEach(file => {
         // Generate a unique ID for this specific file upload
-        // This allows the server to correctly reassemble the file
         const uniqueId = `${file.name}-${file.size}-${file.lastModified}`;
         
         // Start the upload process for this file
@@ -73,31 +72,45 @@ function handleFiles(files) {
 }
 
 /**
- * Creates the UI elements for the file and starts the chunking process.
+ * Creates the UI elements (NOW BOOTSTRAP-COMPATIBLE)
+ * and starts the chunking process.
  */
 function uploadFile(file, uniqueId) {
-    // --- Create visual elements (same as before) ---
+    
+    // --- Create Bootstrap-styled visual elements ---
     const fileItem = document.createElement('div');
-    fileItem.className = 'file-item';
+    fileItem.className = 'd-flex align-items-center justify-content-between p-2 bg-body-secondary rounded-2 mb-2';
 
-    const fileName = document.createElement('span');
-    fileName.className = 'file-name';
+    const fileName = document.createElement('div');
+    fileName.className = 'file-name small text-truncate pe-2';
     fileName.textContent = file.name;
 
-    const fileProgress = document.createElement('div');
-    fileProgress.className = 'file-progress';
-    
+    // Progress wrapper
+    const progressWrapper = document.createElement('div');
+    progressWrapper.className = 'flex-grow-1';
+    progressWrapper.style.maxWidth = '120px';
+
+    const progressContainer = document.createElement('div');
+    progressContainer.className = 'progress';
+    progressContainer.setAttribute('role', 'progressbar');
+    progressContainer.style.height = '8px';
+
     const progressBar = document.createElement('div');
-    progressBar.className = 'progress-bar';
+    progressBar.className = 'progress-bar'; // 'bg-success' / 'bg-danger' will be added later
+    progressBar.style.width = '0%';
 
-    const fileStatus = document.createElement('span');
-    fileStatus.className = 'file-status';
+    const fileStatus = document.createElement('div');
+    fileStatus.className = 'file-status small text-muted ps-2';
+    fileStatus.style.minWidth = '70px'; // Space for "Uploading..."
+    fileStatus.style.textAlign = 'right';
     fileStatus.textContent = 'Preparing...';
-    fileStatus.style.color = '#666';
 
-    fileProgress.appendChild(progressBar);
+    // Assemble the elements
+    progressContainer.appendChild(progressBar);
+    progressWrapper.appendChild(progressContainer);
+
     fileItem.appendChild(fileName);
-    fileItem.appendChild(fileProgress);
+    fileItem.appendChild(progressWrapper);
     fileItem.appendChild(fileStatus);
     fileList.appendChild(fileItem);
 
@@ -145,41 +158,70 @@ function uploadChunk(file, uniqueId, currentChunk, totalChunks, progressBar, fil
                     if (response.status === 'chunk_uploaded') {
                         // Upload the next chunk
                         currentChunk++;
-                        fileStatus.textContent = `Uploading chunk ${currentChunk + 1}/${totalChunks}`;
+                        fileStatus.textContent = `Uploading...`;
                         uploadChunk(file, uniqueId, currentChunk, totalChunks, progressBar, fileStatus);
                     
                     } else if (response.status === 'complete') {
-                        // File upload is finished
+                        // --- SWEETALERT SUCCESS ---
+                        // 1. Update UI
                         progressBar.style.width = '100%';
-                        fileStatus.textContent = 'Uploaded';
-                        fileStatus.style.color = '#28a745';
+                        progressBar.classList.add('bg-success');
+                        fileStatus.textContent = 'Done';
+                        fileStatus.classList.remove('text-muted');
+                        fileStatus.classList.add('text-success');
+
+                        // 2. Show Success Toast
+                        Swal.fire({
+                            toast: true,
+                            position: 'top-end',
+                            icon: 'success',
+                            title: 'Upload complete!',
+                            text: file.name, // Show which file finished
+                            showConfirmButton: false,
+                            timer: 3000,
+                            timerProgressBar: true
+                        });
                     }
                 } else {
-                    // Server returned a JSON error
-                    handleUploadError(response.error, fileStatus, progressBar);
+                    // Server returned a JSON error (e.g., "file type not allowed")
+                    handleUploadError(response.error, fileStatus, progressBar, file.name);
                 }
             } catch (e) {
                 // JSON parsing failed
-                handleUploadError('Invalid server response.', fileStatus, progressBar);
+                handleUploadError('Invalid server response.', fileStatus, progressBar, file.name);
             }
         } else {
-            // HTTP error
-            handleUploadError(`Upload Failed (Status: ${xhr.status})`, fileStatus, progressBar);
+            // HTTP error (e.g., 404, 500)
+            handleUploadError(`Upload Failed (Status: ${xhr.status})`, fileStatus, progressBar, file.name);
         }
     };
 
     xhr.onerror = () => {
-        handleUploadError('Network Error', fileStatus, progressBar);
+        // Network Error
+        handleUploadError('Network Error', fileStatus, progressBar, file.name);
     };
 
     xhr.send(formData);
 }
 
 /**
- * A helper function to show an error state on the UI.
+ * A helper function to show an error state on the UI
+ * and trigger a SweetAlert modal.
  */
-function handleUploadError(message, fileStatus, progressBar) {
-    fileStatus.textContent = message;
-    fileStatus.style.color = '#dc3545';
-    progressBar.style.backgroundColor = '#dc3545';
+function handleUploadError(message, fileStatus, progressBar, fileName) {
+    // 1. Update the specific file's UI
+    fileStatus.textContent = 'Failed';
+    fileStatus.classList.remove('text-muted');
+    fileStatus.classList.add('text-danger');
+    progressBar.classList.add('bg-danger');
+    progressBar.style.width = '100%'; // Show a full red bar
+
+    // 2. --- SWEETALERT ERROR MODAL ---
+    // Show a modal (not a toast) for errors as they are more important
+    Swal.fire({
+        icon: 'error',
+        title: 'Upload Failed',
+        text: `Could not upload "${fileName}": ${message}`,
+        confirmButtonColor: '#d33' // Use Bootstrap's danger color
+    });
 }

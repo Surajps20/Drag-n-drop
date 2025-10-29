@@ -1,61 +1,62 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>File Upload Page</title>
-    <link rel="stylesheet" href="style.css">
+
     <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.13.6/css/jquery.dataTables.min.css">
-       <?php
-// Include your new countdown timer file
-include 'countdown.php';
-?>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
 
+    <link rel="stylesheet" href="style.css">
 
-<style>
-        /* This new wrapper will hold both items */
-        .page-wrapper {
-            /* This ensures it matches the width of your uploader */
-            width: 100%; 
-            max-width: 600px; /* Adjust this to match your .upload-container max-width */
-            
-            /* This will stack the uploader and timer vertically */
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-        }
-    </style>
+    <?php
+    // Include your new countdown timer file
+    include 'countdown.php';
+    ?>
 </head>
-<body>
 
-    <div class="page-wrapper">
+<body class="bg-light">
 
-        <div class="upload-container">
-            <h2>Select the file you want to upload</h2>
-            <p style="text-align: center; margin-top: 20px;">
-                </p>
+    <div class="container my-5">
+        <div class="row justify-content-center">
+            <div class="col-lg-8 col-xl-7">
+                <div class="d-flex flex-column align-items-center">
 
+                    <div class="upload-container bg-white border rounded-3 p-4 p-md-5 shadow-sm w-100">
 
-            <div class="drop-zone" id="dropZone">
-                <p>Drop files here to start uploading</p>
-                <p>or</p>
-                <button type="button" id="selectFileBtn">Select File</button>
+                        <h2 class="h4 text-dark text-center mb-4">Select the file you want to upload</h2>
+
+                        <div class="drop-zone text-center p-5 rounded-3 border border-2 border-primary border-dashed bg-body-secondary" id="dropZone">
+                            <p class="text-muted mb-2">Drop files here to start uploading</p>
+                            <p class="text-muted small my-2">or</p>
+
+                            <button type="button" id="selectFileBtn" class="btn btn-primary">Select File</button>
+                        </div>
+
+                        <input type="file" id="fileInput" accept="*/*" multiple hidden>
+
+                        <div class="file-list mt-4" id="fileList">
+                        </div>
+
+                    </div>
+                    <?php
+                    // The timer call stays here, inside the flex column
+                    display_countdown_timer();
+                    ?>
+
+                </div>
             </div>
-
-            <input type="file" id="fileInput" multiple hidden>
-
-            <div class="file-list" id="fileList"></div>
         </div>
-        
-        <?php
-            // 2. The timer call stays here, but is now INSIDE the wrapper
-            display_countdown_timer(); 
-        ?>
-
-    </div> <script src="https://code.jquery.com/jquery-3.7.0.js"></script>
+    </div>
+    <script src="https://code.jquery.com/jquery-3.7.0.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
     <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script src="files.js"></script>
     <script src="upload.js"></script>
 
 </body>
+
 </html>

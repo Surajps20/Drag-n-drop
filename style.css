@@ -175,3 +175,13 @@ h2 {
 .share-btn:hover {
     background-color: #0056b3;
 }
+/* All other styles from your original file can be deleted.
+  This is the ONLY style needed to handle the dynamic 'dragover' class 
+  that your JavaScript adds.
+*/
+
+.drop-zone.dragover {
+  /* Use Bootstrap's theme colors for consistency */
+  background-color: var(--bs-info-bg-subtle);
+  border-color: var(--bs-info);
+}

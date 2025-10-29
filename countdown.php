@@ -1,75 +1,69 @@
 <?php
 /**
- * Renders a self-contained countdown timer.
+ * Renders a self-contained, Bootstrap-styled countdown timer.
  * This function can be called anywhere in your HTML body.
  */
 function display_countdown_timer() {
     
-    // We use a HEREDOC (<<<HTML) to echo a large block of code
-    // without worrying about quotes or escaping.
-    echo <<<HTML
+    // --- 1. SET YOUR TARGET DATE HERE ---
+    // Use the format "YYYY-MM-DD HH:MM:SS"
+    // I've kept your original date of "September 5, 2026"
+    $target_date = "2026-09-05 00:00:00";
 
-    <style>
-        /* --- Countdown Timer --- */
-        .timer-container {
-            background-color: #fff8e1; /* A light, non-intrusive yellow */
-            border: 1px solid #ffe5b4;
-            color: #856404; /* Dark text for contrast */
-            padding: 1rem 1.5rem;
-            border-radius: 8px;
-            margin-bottom: 1.5rem;
-            text-align: center;
-            font-size: 1.1rem;
-            font-weight: 500;
-        }
-
-        #countdown-timer {
-            font-weight: 700;
-            color: #d93025; /* Red for urgency */
-            margin-left: 0.5rem;
-        }
-    </style>
-
-    <div class="timer-container">
-        This page will expire in: 
-        <span id="countdown-timer">Loading...</span>
-    </div>
-
-    <script>
-        // We wrap this in DOMContentLoaded to ensure it runs
-        // after the page is loaded, no matter where this file is included.
-        document.addEventListener('DOMContentLoaded', function() {
+    // --- 2. HTML Structure (Using Bootstrap Alert classes) ---
+    // The <style> block is gone. We now use Bootstrap's "alert" component.
+    echo '
+    <div class="alert alert-warning text-center mb-4" role="alert">
+        <strong>This page will expire in:</strong>
         
-            // Set the target date (September 5, 2026)
-            const countDownDate = new Date("September 5, 2026 00:00:00").getTime();
+        <span id="countdown-timer" class="fw-bold text-danger ms-2">Loading...</span>
+    </div>
+    ';
+
+    // --- 3. JavaScript (No changes needed, but now cleaner) ---
+    // We inject the $target_date variable into the script.
+    echo '
+    <script>
+        // Kept your DOMContentLoaded wrapper, which is good practice!
+        document.addEventListener("DOMContentLoaded", function() {
+            
+            // We use the PHP variable to set the date
+            const countDownDate = new Date("' . $target_date . '").getTime();
             const timerElement = document.getElementById("countdown-timer");
 
-            // Check if the timer element actually exists on the page
-            if (timerElement) {
-                const countdownInterval = setInterval(function() {
-                    const now = new Date().getTime();
-                    const distance = countDownDate - now;
-
-                    // Time calculations
-                    const days = Math.floor(distance / (1000 * 60 * 60 * 24));
-                    const hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
-                    const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
-                    const seconds = Math.floor((distance % (1000 * 60)) / 1000);
-
-                    // Display the result
-                    timerElement.innerHTML = days + "d " + hours + "h " + minutes + "m " + seconds + "s ";
-
-                    // If the countdown is over, show "EXPIRED"
-                    if (distance < 0) {
-                        clearInterval(countdownInterval);
-                        timerElement.innerHTML = "EXPIRED";
-                    }
-                }, 1000);
+            if (!timerElement) {
+                console.error("Countdown timer element not found.");
+                return; // Stop if the element doesn\'t exist
             }
+
+            const interval = setInterval(function() {
+                const now = new Date().getTime();
+                const distance = countDownDate - now;
+
+                // Time calculations
+                const days = Math.floor(distance / (1000 * 60 * 60 * 24));
+                const hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+                const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+                const seconds = Math.floor((distance % (1000 * 60)) / 1000);
+
+                // Display the result
+                timerElement.innerHTML = days + "d " + hours + "h " + minutes + "m " + seconds + "s ";
+
+                // If the countdown is over, show "EXPIRED"
+                if (distance < 0) {
+                    clearInterval(interval);
+                    timerElement.innerHTML = "EXPIRED";
+                    
+                    // Bonus: Change the alert box from yellow (warning) to red (danger)
+                    const alertBox = timerElement.closest(".alert");
+                    if (alertBox) {
+                        alertBox.classList.remove("alert-warning");
+                        alertBox.classList.add("alert-danger");
+                    }
+                }
+            }, 1000);
         });
     </script>
-
-HTML;
+    ';
 }
-
 ?>
