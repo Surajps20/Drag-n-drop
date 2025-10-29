@@ -227,6 +227,49 @@ if (!isset($_SESSION['user_id'])) {
             color: #d93025; /* Red for urgency */
             margin-left: 0.5rem;
         }
+
+        /* --- Action Buttons in Table --- */
+/* Base style for all buttons */
+.share-btn, .download-btn, .delete-btn {
+    color: white;
+    border: none;
+    padding: 0.6rem 1rem;
+    border-radius: 6px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background-color 0.2s;
+    text-decoration: none; /* For the <a> tag */
+    display: inline-block; /* For the <a> tag */
+    font-size: 0.85rem;
+    text-align: center;
+}
+
+/* Style for the 'Copy Link' button */
+.share-btn {
+    background-color: #007bff; /* Blue */
+}
+.share-btn:hover {
+    background-color: #0056b3;
+}
+
+/* Style for the new 'Download' button */
+.download-btn {
+    background-color: #28a745; /* Green */
+}
+.download-btn:hover {
+    background-color: #218838;
+}
+
+/* Style for the new 'Delete' button */
+.delete-btn {
+    background-color: #dc3545; /* Red */
+}
+.delete-btn:hover {
+    background-color: #c82333;
+}
+
+/* This replaces your old .copy-button style */
+/* You can remove .copy-button and .copy-button:hover */
 </style>
 </head>
 
@@ -252,6 +295,8 @@ if (!isset($_SESSION['user_id'])) {
                     <th>Size</th>
                     <th>Date Uploaded</th>
                     <th>Share Link</th>
+                    <th>Download</th> 
+                    <th>Delete</th>  
                 </tr>
             </thead>
             <tbody>
