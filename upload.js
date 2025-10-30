@@ -72,6 +72,19 @@ function handleFiles(files) {
 }
 
 /**
+ * NEW HELPER FUNCTION
+ * Formats bytes into a human-readable string (KB, MB, GB).
+ */
+function formatBytes(bytes, decimals = 2) {
+    if (bytes === 0) return '0 Bytes';
+    const k = 1024;
+    const dm = decimals < 0 ? 0 : decimals;
+    const sizes = ['Bytes', 'KB', 'MB', 'GB', 'TB'];
+    const i = Math.floor(Math.log(bytes) / Math.log(k));
+    return parseFloat((bytes / Math.pow(k, i)).toFixed(dm)) + ' ' + sizes[i];
+}
+
+/**
  * Creates the UI elements (NOW BOOTSTRAP-COMPATIBLE)
  * and starts the chunking process.
  */
@@ -101,7 +114,8 @@ function uploadFile(file, uniqueId) {
 
     const fileStatus = document.createElement('div');
     fileStatus.className = 'file-status small text-muted ps-2';
-    fileStatus.style.minWidth = '70px'; // Space for "Uploading..."
+    // --- MODIFIED --- Give it more space for "X MB / Y MB"
+    fileStatus.style.minWidth = '130px'; 
     fileStatus.style.textAlign = 'right';
     fileStatus.textContent = 'Preparing...';
 
@@ -114,18 +128,20 @@ function uploadFile(file, uniqueId) {
     fileItem.appendChild(fileStatus);
     fileList.appendChild(fileItem);
 
-    // --- NEW Chunking Logic ---
+    // --- Chunking Logic ---
     const totalChunks = Math.ceil(file.size / CHUNK_SIZE);
     let currentChunk = 0;
 
     // Start uploading the first chunk
-    uploadChunk(file, uniqueId, currentChunk, totalChunks, progressBar, fileStatus);
+    // --- MODIFIED --- Pass 'fileItem' as a new argument
+    uploadChunk(file, uniqueId, currentChunk, totalChunks, progressBar, fileStatus, fileItem);
 }
 
 /**
  * This function recursively uploads one chunk at a time.
+ * --- MODIFIED --- Added 'fileItem' to parameters
  */
-function uploadChunk(file, uniqueId, currentChunk, totalChunks, progressBar, fileStatus) {
+function uploadChunk(file, uniqueId, currentChunk, totalChunks, progressBar, fileStatus, fileItem) {
     const start = currentChunk * CHUNK_SIZE;
     const end = Math.min(start + CHUNK_SIZE, file.size);
     const chunk = file.slice(start, end);
@@ -146,6 +162,11 @@ function uploadChunk(file, uniqueId, currentChunk, totalChunks, progressBar, fil
             const bytesUploaded = (currentChunk * CHUNK_SIZE) + e.loaded;
             const percentComplete = Math.round((bytesUploaded / file.size) * 100);
             progressBar.style.width = percentComplete + '%';
+
+            // --- MODIFIED (Task 2: Show numerical value) ---
+            const formattedUploaded = formatBytes(bytesUploaded);
+            const formattedTotal = formatBytes(file.size);
+            fileStatus.textContent = `${formattedUploaded} / ${formattedTotal}`;
         }
     });
 
@@ -158,15 +179,15 @@ function uploadChunk(file, uniqueId, currentChunk, totalChunks, progressBar, fil
                     if (response.status === 'chunk_uploaded') {
                         // Upload the next chunk
                         currentChunk++;
-                        fileStatus.textContent = `Uploading...`;
-                        uploadChunk(file, uniqueId, currentChunk, totalChunks, progressBar, fileStatus);
+                        // --- MODIFIED --- Pass 'fileItem' in the recursive call
+                        uploadChunk(file, uniqueId, currentChunk, totalChunks, progressBar, fileStatus, fileItem);
                     
                     } else if (response.status === 'complete') {
                         // --- SWEETALERT SUCCESS ---
                         // 1. Update UI
                         progressBar.style.width = '100%';
                         progressBar.classList.add('bg-success');
-                        fileStatus.textContent = 'Done';
+                        fileStatus.textContent = 'Done'; // Final status
                         fileStatus.classList.remove('text-muted');
                         fileStatus.classList.add('text-success');
 
@@ -181,6 +202,12 @@ function uploadChunk(file, uniqueId, currentChunk, totalChunks, progressBar, fil
                             timer: 3000,
                             timerProgressBar: true
                         });
+                        
+                        // --- NEW (Task 1: Disappear after 30sec) ---
+                        setTimeout(() => {
+                            fileItem.remove(); 
+                        }, 30000); // 30,000 milliseconds = 30 seconds
+                        
                     }
                 } else {
                     // Server returned a JSON error (e.g., "file type not allowed")
