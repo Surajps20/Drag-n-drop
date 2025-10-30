@@ -10,6 +10,7 @@ const uploadURL = 'upload.php';
 const CHUNK_SIZE = 5 * 1024 * 1024;
 
 // --- Event Listeners (Same as before) ---
+// ... (No changes in this section) ...
 
 // 1. Click "Select File" button
 selectFileBtn.addEventListener('click', () => {
@@ -106,13 +107,15 @@ function uploadFile(file, uniqueId) {
     let currentChunk = 0;
 
     // Start uploading the first chunk
-    uploadChunk(file, uniqueId, currentChunk, totalChunks, progressBar, fileStatus);
+    // --- MODIFIED: Pass 'fileItem' as a new argument ---
+    uploadChunk(file, uniqueId, currentChunk, totalChunks, progressBar, fileStatus, fileItem);
 }
 
 /**
  * This function recursively uploads one chunk at a time.
+ * --- MODIFIED: Added 'fileItem' to the function signature ---
  */
-function uploadChunk(file, uniqueId, currentChunk, totalChunks, progressBar, fileStatus) {
+function uploadChunk(file, uniqueId, currentChunk, totalChunks, progressBar, fileStatus, fileItem) {
     const start = currentChunk * CHUNK_SIZE;
     const end = Math.min(start + CHUNK_SIZE, file.size);
     const chunk = file.slice(start, end);
@@ -146,13 +149,29 @@ function uploadChunk(file, uniqueId, currentChunk, totalChunks, progressBar, fil
                         // Upload the next chunk
                         currentChunk++;
                         fileStatus.textContent = `Uploading chunk ${currentChunk + 1}/${totalChunks}`;
-                        uploadChunk(file, uniqueId, currentChunk, totalChunks, progressBar, fileStatus);
+                        // --- MODIFIED: Pass 'fileItem' in the recursive call ---
+                        uploadChunk(file, uniqueId, currentChunk, totalChunks, progressBar, fileStatus, fileItem);
                     
                     } else if (response.status === 'complete') {
                         // File upload is finished
                         progressBar.style.width = '100%';
                         fileStatus.textContent = 'Uploaded';
                         fileStatus.style.color = '#28a745';
+
+                        // --- NEW ---
+                        // Automatically remove the item after 30 seconds
+                        setTimeout(() => {
+                            // Add a little fade-out animation for a smooth removal
+                            fileItem.style.transition = 'opacity 0.5s ease-out';
+                            fileItem.style.opacity = '0';
+                            
+                            // Wait for the animation to finish, then remove
+                            setTimeout(() => {
+                                fileItem.remove();
+                            }, 500); // 0.5 seconds
+                            
+                        }, 30000); // 30,000 milliseconds = 30 seconds
+                        // --- END NEW ---
                     }
                 } else {
                     // Server returned a JSON error
