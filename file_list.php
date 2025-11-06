@@ -446,20 +446,7 @@ if (!isset($_SESSION['user_id'])) {
             <a href="index.php">Back to Uploader</a>
         </p>
     </div>
-    <?php
-// Include your new countdown timer file
-include 'countdown.php';
-?>
-    <?php
-            // --- 2. Call the function here ---
-            // This will print the timer's HTML, CSS, and JS
-            display_countdown_timer(); 
     
-?>
-    
-  
-
-
 
 
     <script src="https://code.jquery.com/jquery-3.7.0.js"></script>

@@ -2,6 +2,8 @@
 // Start the session to check if it exists
 session_start();
 
+date_default_timezone_set('Asia/Kolkata');
+
 // Check if the user_id session variable is NOT set
 if (!isset($_SESSION['user_id'])) {
     

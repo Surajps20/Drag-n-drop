@@ -5,11 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>File Upload Page</title>
     <link rel="stylesheet" href="style.css">
-    <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.13.6/css/jquery.dataTables.min.css">
-       <?php
-// Include your new countdown timer file
-include 'countdown.php';
-?>
+    <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.13.6/css/jquery.dataTables.min.css">      
 
 
 <style>
@@ -39,18 +35,16 @@ include 'countdown.php';
             <div class="drop-zone" id="dropZone">
                 <p>Drop files here to start uploading</p>
                 <p>or</p>
-                <button type="button" id="selectFileBtn">Select File</button>
+                <button type="button" id="selectFileBtn">Select File/Folder</button>
             </div>
 
             <input type="file" id="fileInput" multiple hidden>
+            <input type="file" id="folderInput" webkitdirectory multiple hidden>
 
             <div class="file-list" id="fileList"></div>
         </div>
         
-        <?php
-            // 2. The timer call stays here, but is now INSIDE the wrapper
-            display_countdown_timer(); 
-        ?>
+       
 
     </div> <script src="https://code.jquery.com/jquery-3.7.0.js"></script>
     <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
